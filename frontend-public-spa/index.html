@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sitio Web Informativo Oficial del Centro Hospitalario & Sistema de Salud Integral">
+  <title>Centro Hospitalario | Salud & Excelencia Médica</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Encabezado y Navegación Principal -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="#inicio" class="logo">
+        <i class="fa-solid fa-hospital-user logo-icon"></i>
+        <span>Hospital<strong class="logo-accent">Salud</strong></span>
+      </a>
+
+      <!-- Menú de Navegación SPA -->
+      <nav class="site-nav">
+        <ul>
+          <li><a href="#inicio" class="nav-link"><i class="fa-solid fa-house"></i> Inicio</a></li>
+          <li><a href="#nosotros" class="nav-link"><i class="fa-solid fa-hospital"></i> Nosotros</a></li>
+          <li><a href="#servicios" class="nav-link"><i class="fa-solid fa-stethoscope"></i> Servicios</a></li>
+          <li><a href="#contacto" class="nav-link"><i class="fa-solid fa-envelope"></i> Contacto</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a href="http://localhost:4200" class="btn btn-portal" target="_blank">
+          <i class="fa-solid fa-right-to-bracket"></i> Portal Empleados (Angular)
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Área Contenedor donde se cargan las vistas asíncronamente con fetch() -->
+  <main id="content" class="main-container">
+    <div class="loading-view">
+      <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+      <p>Cargando vista informativa...</p>
+    </div>
+  </main>
+
+  <!-- Pie de Página Institucional -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <h3>Centro Hospitalario & Clínicas</h3>
+        <p>Comprometidos con la salud, la tecnología médica avanzada y la atención humana integral.</p>
+      </div>
+      <div class="footer-contact">
+        <p><i class="fa-solid fa-location-dot"></i> Av. Las Américas 12-45, Zona 14, Guatemala</p>
+        <p><i class="fa-solid fa-phone"></i> PBX: +(502) 2200-0000 | Emergencias 24/7</p>
+        <p><i class="fa-solid fa-envelope"></i> contacto&#64;hospital-salud.com</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Centro Hospitalario. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Enrutador JavaScript en Vanilla JS -->
+  <script src="js/router.js"></script>
+</body>
+</html>

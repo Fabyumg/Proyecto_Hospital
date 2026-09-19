@@ -1,0 +1,213 @@
+/* ============================================================================
+   ESTILOS SPA PÚBLICA (VANILLA JS, HTML5, CSS3)
+   ============================================================================ */
+:root {
+  --primary-color: #0284c7;
+  --secondary-color: #0d9488;
+  --accent-color: #0369a1;
+  --dark-bg: #0f172a;
+  --card-bg: #1e293b;
+  --text-light: #f8fafc;
+  --text-dim: #94a3b8;
+  --border-color: #334155;
+  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--dark-bg);
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Header & Nav */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+}
+
+.logo-icon {
+  font-size: 1.75rem;
+  color: var(--primary-color);
+}
+
+.logo-accent {
+  color: var(--secondary-color);
+}
+
+.site-nav ul {
+  display: flex;
+  list-style: none;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: #fff;
+  background: rgba(2, 132, 199, 0.2);
+}
+
+.btn-portal {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: transform 0.2s;
+}
+
+.btn-portal:hover {
+  transform: translateY(-2px);
+}
+
+/* Main Area */
+.main-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  min-height: 70vh;
+}
+
+.loading-view {
+  text-align: center;
+  padding: 4rem;
+  color: var(--text-dim);
+}
+
+/* Cards & Layouts */
+.glass-box {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.hero-section {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.services-grid, .team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.service-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.25s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary-color);
+}
+
+.service-icon {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+/* Footer */
+.site-footer {
+  background: #090d16;
+  border-top: 1px solid var(--border-color);
+  padding: 3rem 1.5rem 1.5rem;
+  margin-top: 3rem;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.footer-brand h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.footer-contact p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.footer-bottom {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 1.5rem;
+}

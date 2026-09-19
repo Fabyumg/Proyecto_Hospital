@@ -13,17 +13,18 @@ import gt.edu.umg.core.entities.Dtos.Response.PacienteResponseDto;
 @Mapper(componentModel = "spring")
 public interface PacienteMapper {
 
-	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "activo", constant = "true")
-	Paciente toEntity(PacienteRequestDto dto);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "activo", constant = "true")
+    @Mapping(target = "fechaCreacion", ignore = true)
+    Paciente toEntity(PacienteRequestDto dto);
 
-	@Mapping(target = "edad", expression = "java(calcularEdad(entity.getFechaNacimiento()))")
-	PacienteResponseDto toDto(Paciente entity);
+    @Mapping(target = "edad", expression = "java(calcularEdad(entity.getFechaNacimiento()))")
+    PacienteResponseDto toDto(Paciente entity);
 
-	default Integer calcularEdad(LocalDate fechaNacimiento) {
-		if (fechaNacimiento == null) {
-			return null;
-		}
-		return Period.between(fechaNacimiento, LocalDate.now()).getYears();
-	}
+    default Integer calcularEdad(LocalDate fechaNacimiento) {
+        if (fechaNacimiento == null) {
+            return null;
+        }
+        return Period.between(fechaNacimiento, LocalDate.now()).getYears();
+    }
 }
