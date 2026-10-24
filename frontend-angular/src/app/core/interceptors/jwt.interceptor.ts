@@ -1,19 +1,29 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
+  let authReq = req;
   if (token) {
-    const clonedReq = req.clone({
+    authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
       }
     });
-    return next(clonedReq);
   }
 
-  return next(req);
+  return next(authReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      // Si el servidor retorna 401 (Token invalido o expirado tras reinicio de llaves RSA)
+      if (error.status === 401) {
+        console.warn('Sesión expirada o token RSA inválido. Redirigiendo a inicio de sesión...');
+        authService.logout();
+      }
+      return throwError(() => error);
+    })
+  );
 };

@@ -187,29 +187,29 @@ import { Paciente, PacienteFilter, PaginationMetadata } from '../../core/models/
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Nombre *</label>
-                <input type="text" class="form-control" [(ngModel)]="newPaciente.nombre" name="nombre" required />
+                <input type="text" class="form-control" [(ngModel)]="newPaciente.nombre" name="nombre" required placeholder="ej. Juan" />
               </div>
               <div class="form-group">
                 <label class="form-label">Apellido *</label>
-                <input type="text" class="form-control" [(ngModel)]="newPaciente.apellido" name="apellido" required />
+                <input type="text" class="form-control" [(ngModel)]="newPaciente.apellido" name="apellido" required placeholder="ej. Pérez" />
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">DPI (13 dígitos) *</label>
-                <input type="text" class="form-control" [(ngModel)]="newPaciente.dpi" name="dpi" required maxlength="13" />
+                <input type="text" class="form-control" [(ngModel)]="newPaciente.dpi" name="dpi" required maxlength="13" placeholder="13 dígitos numéricos" />
               </div>
               <div class="form-group">
                 <label class="form-label">Teléfono (8 dígitos) *</label>
-                <input type="text" class="form-control" [(ngModel)]="newPaciente.telefono" name="telefono" required maxlength="8" />
+                <input type="text" class="form-control" [(ngModel)]="newPaciente.telefono" name="telefono" required maxlength="8" placeholder="8 dígitos numéricos" />
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Correo Electrónico *</label>
-                <input type="email" class="form-control" [(ngModel)]="newPaciente.correo" name="correo" required />
+                <input type="email" class="form-control" [(ngModel)]="newPaciente.correo" name="correo" required placeholder="ej. correo@dominio.com" />
               </div>
               <div class="form-group">
                 <label class="form-label">Fecha de Nacimiento *</label>
@@ -390,11 +390,6 @@ export class PacientesComponent implements OnInit {
     return this.authService.hasRole('ADMINISTRADOR');
   }
 
-  /**
-   * Control de Menú / Funciones por Rol:
-   * Muestra botón Registrar sólo si tiene rol ADMINISTRADOR o permiso PACIENTES_REGISTRAR.
-   * Sin harcodear usernames.
-   */
   get canRegister(): boolean {
     return this.authService.hasRole('ADMINISTRADOR') || this.authService.hasPermission('PACIENTES_REGISTRAR');
   }
@@ -415,7 +410,7 @@ export class PacientesComponent implements OnInit {
   }
 
   applyFilters(): void {
-    this.filter.page = 0; // Reinicia a la primera página
+    this.filter.page = 0;
     this.loadPacientes();
   }
 
@@ -460,8 +455,8 @@ export class PacientesComponent implements OnInit {
   }
 
   savePaciente(): void {
-    if (!this.newPaciente.nombre || !this.newPaciente.apellido || !this.newPaciente.dpi) {
-      alert('Por favor completa todos los campos requeridos (*)');
+    if (!this.newPaciente.nombre || !this.newPaciente.apellido || !this.newPaciente.dpi || !this.newPaciente.telefono || !this.newPaciente.correo || !this.newPaciente.fechaNacimiento) {
+      alert('Por favor completa todos los campos requeridos (*): Nombre, Apellido, DPI (13 dígitos), Teléfono (8 dígitos), Correo y Fecha de Nacimiento.');
       return;
     }
 
@@ -475,7 +470,12 @@ export class PacientesComponent implements OnInit {
       },
       error: (err) => {
         this.saving = false;
-        alert('Error al guardar el paciente: ' + (err.error?.message || err.message));
+        let msg = err.error?.message || err.message;
+        if (err.error?.details) {
+          const detailMsgs = Object.values(err.error.details).join('\n- ');
+          msg += ':\n- ' + detailMsgs;
+        }
+        alert('Error al guardar el paciente:\n' + msg);
       }
     });
   }

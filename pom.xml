@@ -57,6 +57,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Driver PostgreSQL (produccion en Render) -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Base de datos H2 para fallback / desarrollo rápido -->
         <dependency>
             <groupId>com.h2database</groupId>

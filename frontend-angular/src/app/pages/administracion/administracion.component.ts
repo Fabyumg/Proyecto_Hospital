@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -159,7 +160,7 @@ export class AdministracionComponent implements OnInit {
     rolNombre: 'OPERADOR'
   };
 
-  private readonly API_URL = 'http://localhost:8080/api/v1/usuarios';
+  private readonly API_URL = `${environment.apiUrl}/api/v1/usuarios`;
 
   constructor(private http: HttpClient) {}
 

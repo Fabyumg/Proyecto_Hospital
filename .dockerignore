@@ -1,0 +1,11 @@
+# Solo se necesita el backend para construir la imagen
+target/
+frontend-angular/
+frontend-public-spa/
+sql/
+**/node_modules/
+.git/
+.idea/
+.vscode/
+*.md
+render.yaml
