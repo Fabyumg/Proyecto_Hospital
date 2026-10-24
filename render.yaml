@@ -13,16 +13,16 @@ databases:
 
 services:
   # ---------------------------------------------------------------------------
-  # Backend: Spring Boot (Usando runtime nativo de Java/Maven)
+  # Backend: Spring Boot (Render no tiene runtime nativo de Java -> Docker)
   # ---------------------------------------------------------------------------
   - type: web
     name: hospital-backend
-    runtime: java
+    runtime: docker
     plan: free
     region: oregon
     branch: main
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar target/*.jar
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /v3/api-docs
     autoDeploy: true
     envVars:
