@@ -51,7 +51,7 @@ services:
           name: hospital-db
           property: password
       - key: CORS_ALLOWED_ORIGINS
-        value: https://hospital-frontend.onrender.com
+        value: https://hospital-frontend*.onrender.com,http://localhost:4200
 
   # ---------------------------------------------------------------------------
   # Frontend: Angular 18
