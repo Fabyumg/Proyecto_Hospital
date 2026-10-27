@@ -1,13 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TurnstileComponent } from '../../shared/components/turnstile/turnstile.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TurnstileComponent],
   template: `
     <div class="login-wrapper">
       <div class="glass-card login-card fade-in">
@@ -48,11 +49,17 @@ import { AuthService } from '../../core/services/auth.service';
             />
           </div>
 
-          <button type="submit" class="btn btn-primary btn-block" [disabled]="loading">
+          <!-- CAPTCHA: Cloudflare Turnstile (el token se valida en el backend) -->
+          <app-turnstile (tokenChange)="onTurnstileToken($event)"></app-turnstile>
+
+          <button type="submit" class="btn btn-primary btn-block" [disabled]="!canSubmit">
             <i class="fa-solid fa-right-to-bracket" *ngIf="!loading"></i>
             <span *ngIf="loading"><i class="fa-solid fa-spinner fa-spin"></i> Autenticando...</span>
             <span *ngIf="!loading">Iniciar Sesión</span>
           </button>
+          <p class="captcha-hint" *ngIf="!turnstileToken">
+            <i class="fa-solid fa-shield-halved"></i> Completa la verificación de seguridad para continuar.
+          </p>
         </form>
 
         <div class="demo-credentials">
@@ -135,15 +142,33 @@ import { AuthService } from '../../core/services/auth.service';
       gap: 0.5rem;
       justify-content: center;
     }
+    .captcha-hint {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
   `]
 })
 export class LoginComponent {
+  @ViewChild(TurnstileComponent) turnstile?: TurnstileComponent;
+
   username = '';
   password = '';
+  turnstileToken: string | null = null;
   loading = false;
   error = '';
 
   constructor(private authService: AuthService, private router: Router) {}
+
+  /** El botón solo se habilita con el formulario completo Y el CAPTCHA resuelto. */
+  get canSubmit(): boolean {
+    return !!this.username.trim() && !!this.password && !!this.turnstileToken && !this.loading;
+  }
+
+  onTurnstileToken(token: string | null): void {
+    this.turnstileToken = token;
+  }
 
   setCredentials(u: string, p: string): void {
     this.username = u;
@@ -155,21 +180,43 @@ export class LoginComponent {
       this.error = 'Por favor completa todos los campos';
       return;
     }
+    if (!this.turnstileToken) {
+      this.error = 'Completa la verificación de seguridad (CAPTCHA).';
+      return;
+    }
 
     this.loading = true;
     this.error = '';
 
-    this.authService.login({ username: this.username, password: this.password }).subscribe({
+    this.authService.login({
+      username: this.username,
+      password: this.password,
+      turnstileToken: this.turnstileToken
+    }).subscribe({
       next: () => {
         this.loading = false;
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.loading = false;
-        if (err.status === 401) {
-          this.error = 'Credenciales inválidas. Verifica usuario y contraseña.';
-        } else {
-          this.error = 'Error de conexión con el servidor backend (' + (err.message || 'Error desconocido') + ')';
+        // El token de Turnstile es de un solo uso: se solicita uno nuevo
+        this.turnstile?.reset();
+        const serverMsg: string | undefined = err.error?.message;
+        switch (err.status) {
+          case 400:
+            this.error = serverMsg || 'La verificación de seguridad no es válida. Inténtalo de nuevo.';
+            break;
+          case 401:
+            this.error = serverMsg || 'Usuario o contraseña incorrectos.';
+            break;
+          case 429:
+            this.error = serverMsg || 'Demasiados intentos. Espera unos minutos antes de volver a intentar.';
+            break;
+          case 0:
+            this.error = 'No se pudo conectar con el servidor. Verifica tu conexión o inténtalo en unos segundos.';
+            break;
+          default:
+            this.error = 'Ocurrió un error inesperado. Inténtalo más tarde.';
         }
       }
     });

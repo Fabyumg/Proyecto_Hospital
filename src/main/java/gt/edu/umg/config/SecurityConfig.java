@@ -23,6 +23,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import gt.edu.umg.security.jwt.JwtAuthenticationFilter;
+import gt.edu.umg.security.protection.LoginRateLimitFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.web.filter.CorsFilter;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
@@ -31,11 +34,14 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final LoginRateLimitFilter loginRateLimitFilter;
     private final String allowedOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          LoginRateLimitFilter loginRateLimitFilter,
                           @Value("${app.cors.allowed-origins:*}") String allowedOrigins) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.loginRateLimitFilter = loginRateLimitFilter;
         this.allowedOrigins = allowedOrigins;
     }
 
@@ -73,8 +79,18 @@ public class SecurityConfig {
             );
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        // Rate limiting del login dentro de la cadena de seguridad (después de CORS)
+        http.addFilterAfter(loginRateLimitFilter, CorsFilter.class);
 
         return http.build();
+    }
+
+    /** Evita que Spring Boot registre el filtro de rate limit dos veces (servlet + security chain). */
+    @Bean
+    public FilterRegistrationBean<LoginRateLimitFilter> loginRateLimitFilterRegistration(LoginRateLimitFilter filter) {
+        FilterRegistrationBean<LoginRateLimitFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 
     @Bean

@@ -19,7 +19,8 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       // Si el servidor retorna 401 (Token invalido o expirado tras reinicio de llaves RSA)
-      if (error.status === 401) {
+      // Se excluye /auth/login: ahi un 401 significa credenciales incorrectas y lo maneja el formulario
+      if (error.status === 401 && !req.url.includes('/api/auth/login')) {
         console.warn('Sesión expirada o token RSA inválido. Redirigiendo a inicio de sesión...');
         authService.logout();
       }

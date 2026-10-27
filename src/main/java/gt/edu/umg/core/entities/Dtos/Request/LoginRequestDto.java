@@ -10,12 +10,24 @@ public class LoginRequestDto {
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 
+    /** Token generado por el widget de Cloudflare Turnstile en el frontend. */
+    @NotBlank(message = "La verificación CAPTCHA es obligatoria")
+    private String turnstileToken;
+
     public LoginRequestDto() {
     }
 
     public LoginRequestDto(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public String getTurnstileToken() {
+        return turnstileToken;
+    }
+
+    public void setTurnstileToken(String turnstileToken) {
+        this.turnstileToken = turnstileToken;
     }
 
     public String getUsername() {
