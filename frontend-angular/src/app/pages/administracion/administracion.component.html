@@ -1,0 +1,172 @@
+<div class="admin-container fade-in">
+  <div class="page-header glass-card">
+    <div>
+      <h2><i class="fa-solid fa-sliders text-primary"></i> Panel de Administración del Sistema</h2>
+      <p class="subtitle">Exclusivo para el rol ADMINISTRADOR • Usuarios, roles y control de bloqueos de acceso</p>
+    </div>
+    <button class="btn btn-primary" (click)="openUserModal()">
+      <i class="fa-solid fa-user-plus"></i> Crear Nuevo Usuario
+    </button>
+  </div>
+
+  <div *ngIf="notice" class="notice" [ngClass]="'notice-' + notice.type" role="status">
+    <i class="fa-solid" [ngClass]="notice.type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'"></i>
+    {{ notice.text }}
+  </div>
+
+  <!-- Cuentas bloqueadas -->
+  <div class="glass-card">
+    <div class="section-header">
+      <div>
+        <h3><i class="fa-solid fa-user-lock text-warning"></i> Cuentas Bloqueadas Temporalmente</h3>
+        <p class="desc">Cuentas bloqueadas 15 minutos tras 5 intentos fallidos consecutivos. Las cuentas principales (admin, operador) están exentas.</p>
+      </div>
+      <button class="btn btn-secondary btn-sm" (click)="loadBloqueos()" [disabled]="loadingBloqueos">
+        <i class="fa-solid fa-rotate-right" [class.fa-spin]="loadingBloqueos"></i> Actualizar
+      </button>
+    </div>
+
+    <div *ngIf="loadingBloqueos && bloqueos.length === 0" class="text-center p-3">
+      <i class="fa-solid fa-spinner fa-spin fa-lg text-primary"></i>
+    </div>
+
+    <div *ngIf="!loadingBloqueos && bloqueos.length === 0" class="empty">
+      <i class="fa-solid fa-shield-halved"></i>
+      <p>No hay cuentas bloqueadas en este momento.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="bloqueos.length > 0">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Tipo</th>
+            <th>Intentos</th>
+            <th>Último intento</th>
+            <th>Tiempo restante</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of bloqueos">
+            <td><strong>{{ b.username }}</strong></td>
+            <td>
+              <span class="badge" [ngClass]="b.usuarioRegistrado ? 'badge-info' : 'badge-danger'">
+                {{ b.usuarioRegistrado ? 'REGISTRADO' : 'NO REGISTRADO' }}
+              </span>
+            </td>
+            <td>{{ b.intentosFallidos }}</td>
+            <td>{{ b.ultimoIntento | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+            <td><code>{{ formatRemaining(b.segundosRestantes) }}</code></td>
+            <td>
+              <button class="btn btn-primary btn-sm" (click)="desbloquear(b)" [disabled]="unlocking === b.username">
+                <i class="fa-solid" [ngClass]="unlocking === b.username ? 'fa-spinner fa-spin' : 'fa-lock-open'"></i>
+                Desbloquear
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="admin-grid">
+    <div class="glass-card">
+      <h3><i class="fa-solid fa-users-gear text-primary"></i> Usuarios Registrados y Roles</h3>
+      <p class="desc">Contraseñas almacenadas con BCrypt. Nunca se exponen en la API.</p>
+
+      <div *ngIf="loading" class="text-center p-3">
+        <i class="fa-solid fa-spinner fa-spin fa-lg text-primary"></i>
+      </div>
+
+      <ul class="user-list" *ngIf="!loading">
+        <li *ngFor="let u of usuarios">
+          <div>
+            <strong>{{ u.username }}</strong> ({{ u.nombre }} {{ u.apellido }})
+            <br><small class="muted">{{ u.email }}</small>
+          </div>
+          <div>
+            <span class="badge" *ngFor="let r of u.roles" [ngClass]="r.nombre === 'ADMINISTRADOR' ? 'badge-info' : 'badge-success'">
+              ROLE_{{ r.nombre }}
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="glass-card">
+      <h3><i class="fa-solid fa-key text-warning"></i> Configuración de Llaves RSA JWT</h3>
+      <p class="desc">Estado del proveedor de llaves asimétricas RSA de 2048 bits.</p>
+      <div class="key-status">
+        <div class="status-item"><i class="fa-solid fa-circle-check text-success"></i> Llave Privada RSA (Firma Dinámica)</div>
+        <div class="status-item"><i class="fa-solid fa-circle-check text-success"></i> Llave Pública RSA (Validación Bearer)</div>
+        <div class="status-item"><i class="fa-solid fa-shield-halved text-primary"></i> Algoritmo: RS256</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Creación de Usuario y Asignación de Rol -->
+  <div class="modal-backdrop" *ngIf="showUserModal">
+    <div class="glass-card modal-card fade-in">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-user-plus text-primary"></i> Crear Usuario y Asignar Rol</h3>
+        <button class="close-btn" (click)="closeUserModal()" aria-label="Cerrar">&times;</button>
+      </div>
+
+      <div *ngIf="formError" class="notice notice-error">
+        <i class="fa-solid fa-triangle-exclamation"></i> {{ formError }}
+      </div>
+
+      <form (ngSubmit)="saveUsuario()">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Username *</label>
+            <input type="text" class="form-control" [(ngModel)]="newUser.username" name="username" required placeholder="ej. jmendez" />
+            <small class="field-error" *ngIf="fieldErrors['username']">{{ fieldErrors['username'] }}</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contraseña * (mín. 8)</label>
+            <input type="password" class="form-control" [(ngModel)]="newUser.password" name="password" required autocomplete="new-password" />
+            <small class="field-error" *ngIf="fieldErrors['password']">{{ fieldErrors['password'] }}</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre *</label>
+            <input type="text" class="form-control" [(ngModel)]="newUser.nombre" name="nombre" required />
+            <small class="field-error" *ngIf="fieldErrors['nombre']">{{ fieldErrors['nombre'] }}</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apellido *</label>
+            <input type="text" class="form-control" [(ngModel)]="newUser.apellido" name="apellido" required />
+            <small class="field-error" *ngIf="fieldErrors['apellido']">{{ fieldErrors['apellido'] }}</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Correo Electrónico *</label>
+            <input type="email" class="form-control" [(ngModel)]="newUser.email" name="email" required />
+            <small class="field-error" *ngIf="fieldErrors['email']">{{ fieldErrors['email'] }}</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Asignar Rol *</label>
+            <select class="form-select" [(ngModel)]="newUser.rolNombre" name="rolNombre" required>
+              <option value="ADMINISTRADOR">ADMINISTRADOR (Acceso Total)</option>
+              <option value="OPERADOR">OPERADOR (Acceso Limitado)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeUserModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving">
+            <span *ngIf="!saving"><i class="fa-solid fa-floppy-disk"></i> Crear Usuario</span>
+            <span *ngIf="saving"><i class="fa-solid fa-spinner fa-spin"></i> Guardando...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
